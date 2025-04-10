@@ -47,6 +47,7 @@ for _, lsp in pairs(servers) do
             '--clang-tidy',
             '--log=verbose',
             '--header-insertion=never',
+            '--enable-config',
         },
         on_attach = on_attach,
         flags = {

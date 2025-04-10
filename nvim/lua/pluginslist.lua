@@ -78,10 +78,11 @@ packer.startup({
         use "APZelos/blamer.nvim"
         use "sindrets/diffview.nvim"
         use "stevearc/overseer.nvim"
+        use "andweeb/presence.nvim"
 
         use "beyondmarc/glsl.vim"
         use "lervag/vimtex"
-        --use { "martineausimon/nvim-lilypond-suite", requires = { "MunifTanjim/nui.nvim" } }
+        use { "martineausimon/nvim-lilypond-suite", requires = { "MunifTanjim/nui.nvim" } }
         use "p00f/clangd_extensions.nvim"
         use({
             "iamcco/markdown-preview.nvim",
