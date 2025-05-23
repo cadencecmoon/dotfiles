@@ -1,11 +1,9 @@
 #!/bin/sh
 
-dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS SEATD_SOCK DISPLAY WAYLAND_DISPLAY XAUTHORITY XDG_CURRECT_DESKTOP=river
-wlr-randr --output DP-2 --mode 1920x1080@165.003006Hz --transform normal --preferred --pos 0,0 --output DP-1 --mode 1920x1080@165.003006Hz --transform normal --preferred --pos 1920,0
-swaybg -m fill -i ~/.cache/wallpaper &
-
-riverctl spawn "yambar --config ~/.config/yambar/config-dp2.yml" # lewy monitor
-riverctl spawn "yambar --config ~/.config/yambar/config-dp1.yml" # prawy monitor
+riverctl spawn "dbus-update-activation-environment DBUS_SESSION_BUS_ADDRESS SEATD_SOCK DISPLAY WAYLAND_DISPLAY XAUTHORITY XDG_CURRECT_DESKTOP=river KITTY_ENABLE_WAYLAND"
+riverctl spawn "gentoo-pipewire-launcher &"
+riverctl spawn "wlr-randr --output DP-1 --mode 1920x1080@165.003006Hz --transform normal --pos 0,0 --on --output DP-2 --mode 1920x1080@165.003006Hz --transform normal --pos 1920,0 --on"
+riverctl spawn "swaybg -o DP-1 -m fill -i ~/wallpaper-ophelia.jpg -o DP-2 -m fill -i ~/wallpaper-ophelia.jpg &"
 
 riverctl attach-mode bottom
 
@@ -86,17 +84,17 @@ for mode in normal locked
 do
     riverctl map $mode None XF86Eject spawn 'eject -T'
 
-    riverctl map $mode None XF86AudioRaiseVolume  spawn 'pamixer -i 5'
-    riverctl map $mode None XF86AudioLowerVolume  spawn 'pamixer -d 5'
-    riverctl map $mode None XF86AudioMute         spawn 'pamixer --toggle-mute'
+    riverctl map $mode None XF86AudioRaiseVolume  spawn 'amixer set "Master" 10%+'
+    riverctl map $mode None XF86AudioLowerVolume  spawn 'amixer set "Master" 10%-'
+    riverctl map $mode None XF86AudioMute         spawn 'amixer set "Master" toggle'
 
     riverctl map $mode None XF86AudioMedia spawn 'playerctl play-pause'
     riverctl map $mode None XF86AudioPlay  spawn 'playerctl play-pause'
     riverctl map $mode None XF86AudioPrev  spawn 'playerctl previous'
     riverctl map $mode None XF86AudioNext  spawn 'playerctl next'
 
-    riverctl map $mode None XF86MonBrightnessUp   spawn 'brightnessctl set +5%'
-    riverctl map $mode None XF86MonBrightnessDown spawn 'brightnessctl set 5%-'
+    riverctl map $mode None XF86MonBrightnessUp   spawn 'light -A 5'
+    riverctl map $mode None XF86MonBrightnessDown spawn 'light -U 5'
 done
 
 riverctl border-width 0
@@ -113,8 +111,17 @@ riverctl rule-add -app-id "bar" csd
 riverctl default-layout rivertile
 rivertile -view-padding 2 -outer-padding 1 -main-ratio 0.5 &
 
-#riverctl map normal None Print spawn "grim"
-#riverctl map normal Shift Print spawn "grim -g '$(slurp)'"
+riverctl map normal None Print spawn "grim - | wl-copy"
+
+# Screenshot area to clipboard
+riverctl map normal Control Print spawn 'grim -g "$(slurp)" - | wl-copy'
+
+# Screenshot display and save to $HOME/Pictures
+riverctl map normal Alt Print spawn "grim $HOME/Pictures/$(date +'%s.png')"
+
+# Screenshot area and save to $HOME/Pictures
+riverctl map normal Alt+Control Print spawn 'grim -g "$(slurp)" $HOME/Pictures/$(date +'%s.png')'
+
 riverctl map normal Super D spawn "rofi -show drun"
 riverctl map normal Super W spawn qutebrowser
 riverctl map normal Super T spawn kitty
